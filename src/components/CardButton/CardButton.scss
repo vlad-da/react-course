@@ -1,0 +1,14 @@
+.card-button {
+    border-radius: 3px;
+    background: rgb(255, 255, 255);
+    color: #000000;
+    padding: 20px;
+    border: 1px solid #000;
+    text-align: start;
+    display: block;
+    cursor: pointer;
+    width: 100%;
+    &:hover {
+        background-color: #e4e2e2;
+    }
+}
