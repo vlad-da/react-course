@@ -1,29 +1,83 @@
-import Button from '../Button/Button';
-import './JournalForm.scss';
+import Button from "../Button/Button";
+import "./JournalForm.scss";
+import { useState } from "react";
 
-function JournalForm({onSubmit}) {
-
-    const inputChange = (e) => {
-        console.log(e.target.value);
-        
-      };
-    const addJournalItem = (e) => {
-        const formData = new FormData(e.target);
-        const formProps = Object.fromEntries(formData);
-        e.preventDefault();
-        onSubmit(formProps);
-        
+function JournalForm({ onSubmit }) {
+  const [vlidState, setValidState] = useState({
+    title: true,
+    text: true,
+    post: true,
+  });
+  const addJournalItem = (e) => {
+    const formData = new FormData(e.target);
+    const formProps = Object.fromEntries(formData);
+    e.preventDefault();
+    let isValid = true;
+    if (!formProps.title?.trim().length) {
+      setValidState((state) => ({
+        ...state,
+        title: false,
+      }));
+      isValid = false;
+    } else {
+      setValidState((state) => ({
+        ...state,
+        title: true,
+      }));
+      isValid = true;
     }
+    if (!formProps.text?.trim().length) {
+      setValidState((state) => ({
+        ...state,
+        text: false,
+      }));
+      isValid = false;
+    } else {
+      setValidState((state) => ({
+        ...state,
+        text: true,
+      }));
+      isValid = true;
+    }
+    if (!formProps.post?.length) {
+      setValidState((state) => ({
+        ...state,
+        post: false,
+      }));
+      isValid = false;
+    } else {
+      setValidState((state) => ({
+        ...state,
+        post: true,
+      }));
+      isValid = true;
+    }
+    if (!isValid) {
+      return;
+    }
+    onSubmit(formProps);
+  };
 
   return (
-   <form className='journal-form' onSubmit={addJournalItem}>
-    <input type='text' name='title' onChange={inputChange}/>
-    <input type='date' name='date' onChange={inputChange}/>
-    <input type='text' name='text'/>
-    <textarea name='post'  onChange={inputChange}></textarea>
-    <Button  text={"Сохранить"} onClick={() => console.log('123')}/>
-   </form>
-  )
+    <form className="journal-form" onSubmit={addJournalItem}>
+      <input
+        type="text"
+        name="title"
+        className={vlidState.title ? "" : "invalid-form"}
+      />
+      <input type="date" name="date" />
+      <input
+        type="text"
+        name="text"
+        className={vlidState.text ? "" : "invalid-form"}
+      />
+      <textarea
+        name="post"
+        className={vlidState.post ? "" : "invalid-form"}
+      ></textarea>
+      <Button text={"Сохранить"} />
+    </form>
+  );
 }
 
 export default JournalForm;

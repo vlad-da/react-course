@@ -1,5 +1,18 @@
 .journal-form {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  input {
+    height: 50px;
+    border-radius: 3px;
+  }
+  textarea {
+    height: 180px;
+    border-radius: 3px;
+  }
+}
+
+.invalid-form {
+  border: 1px solid red;
+  background-color: rgb(255, 101, 101);
 }
