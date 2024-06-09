@@ -1,6 +1,6 @@
 import Button from "../Button/Button";
 import "./JournalForm.scss";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function JournalForm({ onSubmit }) {
   const [vlidState, setValidState] = useState({
@@ -8,6 +8,22 @@ function JournalForm({ onSubmit }) {
     text: true,
     post: true,
   });
+
+  useEffect(() => {
+    if (!vlidState.post || !vlidState.text || !vlidState.title) {
+      const timerId = setTimeout(() => {
+        setValidState({
+          title: true,
+          text: true,
+          post: true,
+        });
+      }, 2000);
+      return () => {
+        clearTimeout(timerId);
+      };
+    }
+  }, [vlidState]);
+
   const addJournalItem = (e) => {
     const formData = new FormData(e.target);
     const formProps = Object.fromEntries(formData);
