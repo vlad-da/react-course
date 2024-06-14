@@ -1,95 +1,80 @@
 import Button from "../Button/Button";
 import "./JournalForm.scss";
-import { useEffect, useState } from "react";
+import Input from "../Input/Input";
+import { useEffect, useReducer, useRef } from "react";
+import { INITIAL_STATE, formReduser } from './JournalForm.state';
 
 function JournalForm({ onSubmit }) {
-  const [vlidState, setValidState] = useState({
-    title: true,
-    text: true,
-    post: true,
-  });
+  const [formstate, dispatchForm] = useReducer(formReduser, INITIAL_STATE);
+  const { isValid, isFormReadyToSubmit, values } = formstate;
+  const titleRef = useRef();
+  const postRef = useRef();
+  const textRef = useRef();
 
+  const focusError = (isValid) => {
+    switch(true) {
+      case !isValid.title:
+        titleRef.current.focus();
+        break;
+      case !isValid.text:
+        textRef.current.focus();
+        break;
+      case !isValid.post:
+        postRef.current.focus();
+        break;
+    }
+  }
   useEffect(() => {
-    if (!vlidState.post || !vlidState.text || !vlidState.title) {
+    if (!isValid.post || !isValid.text || !isValid.title) {
+      focusError(isValid);
       const timerId = setTimeout(() => {
-        setValidState({
-          title: true,
-          text: true,
-          post: true,
-        });
+        dispatchForm({type: 'RESET_VALIDITY'})
       }, 2000);
       return () => {
         clearTimeout(timerId);
       };
     }
-  }, [vlidState]);
+  }, [isValid]);
+  useEffect(() => {
+    if(isFormReadyToSubmit) {
+        onSubmit(values);
+        dispatchForm({type: 'CLEAR'});
+    }
+  }, [isFormReadyToSubmit])
 
   const addJournalItem = (e) => {
-    const formData = new FormData(e.target);
-    const formProps = Object.fromEntries(formData);
     e.preventDefault();
-    let isValid = true;
-    if (!formProps.title?.trim().length) {
-      setValidState((state) => ({
-        ...state,
-        title: false,
-      }));
-      isValid = false;
-    } else {
-      setValidState((state) => ({
-        ...state,
-        title: true,
-      }));
-      isValid = true;
-    }
-    if (!formProps.text?.trim().length) {
-      setValidState((state) => ({
-        ...state,
-        text: false,
-      }));
-      isValid = false;
-    } else {
-      setValidState((state) => ({
-        ...state,
-        text: true,
-      }));
-      isValid = true;
-    }
-    if (!formProps.post?.length) {
-      setValidState((state) => ({
-        ...state,
-        post: false,
-      }));
-      isValid = false;
-    } else {
-      setValidState((state) => ({
-        ...state,
-        post: true,
-      }));
-      isValid = true;
-    }
-    if (!isValid) {
-      return;
-    }
-    onSubmit(formProps);
+    dispatchForm({type: 'SUBMIT'})
   };
+
+  const onChange = (e) => {
+     dispatchForm({type: 'SET_VALUE', payload: {[e.target.name]: e.target.value}})
+  }
 
   return (
     <form className="journal-form" onSubmit={addJournalItem}>
-      <input
+      <Input
         type="text"
         name="title"
-        className={vlidState.title ? "" : "invalid-form"}
+        ref={titleRef}
+        value={values.title}
+        onChange={onChange}
+        className={isValid.title ? "" : "invalid-form"}
       />
-      <input type="date" name="date" />
-      <input
+      <Input
         type="text"
         name="text"
-        className={vlidState.text ? "" : "invalid-form"}
+        ref={textRef}
+        value={values.text}
+        onChange={onChange}
+        className={isValid.text ? "" : "invalid-form"}
       />
       <textarea
         name="post"
-        className={vlidState.post ? "" : "invalid-form"}
+        ref={postRef}
+        value={values.post}
+        onChange={onChange}
+        className={isValid.post ? "" : "invalid-form"}
       ></textarea>
       <Button text={"Сохранить"} />
     </form>
